@@ -1,3 +1,5 @@
+import os
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 import tkinter as tk
 from tkinter import * 
 from tkinter import messagebox
@@ -8,9 +10,9 @@ from langchain_compressa import CompressaEmbeddings, ChatCompressa
 from langchain_core.documents import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_core.prompts import ChatPromptTemplate
-from langchain.chains import create_retrieval_chain
 from langchain.vectorstores import FAISS
 from langchain.chains.combine_documents import create_stuff_documents_chain
+import sqlite3
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 urls = [
@@ -303,7 +305,121 @@ urls = [
     "https://ftbwiki.org/Mana_Quartz",
     "https://ftbwiki.org/Blaze_Quartz",
     "https://ftbwiki.org/Lavender_Quartz",
-    "https://ftbwiki.org/Sunny_Quartz" 
+    "https://ftbwiki.org/Sunny_Quartz",
+    "https://ftbwiki.org/Manasteel_Pickaxe",
+    "https://ftbwiki.org/Manasteel_Shovel",
+    "https://ftbwiki.org/Manasteel_Axe",
+    "https://ftbwiki.org/Manasteel_Sword",
+    "https://ftbwiki.org/Manasteel_Shears",
+    "https://ftbwiki.org/Manasteel_Helmet",
+    "https://ftbwiki.org/Manasteel_Chestplate",
+    "https://ftbwiki.org/Manasteel_Leggings",
+    "https://ftbwiki.org/Manasteel_Boots",
+    "https://ftbwiki.org/Elementium_Pickaxe",
+    "https://ftbwiki.org/Elementium_Shovel",
+    "https://ftbwiki.org/Elementium_Axe",
+    "https://ftbwiki.org/Elementium_Sword",
+    "https://ftbwiki.org/Elementium_Shears",
+    "https://ftbwiki.org/Elementium_Helmet",
+    "https://ftbwiki.org/Elementium_Chestplate",
+    "https://ftbwiki.org/Elementium_Leggings",
+    "https://ftbwiki.org/Elementium_Boots",
+    "https://ftbwiki.org/Terra_Truncator",
+    "https://ftbwiki.org/Terra_Blade",
+    "https://ftbwiki.org/Terrasteel_Helmet",
+    "https://ftbwiki.org/Terrasteel_Chestplate",
+    "https://ftbwiki.org/Terrasteel_Leggings",
+    "https://ftbwiki.org/Terrasteel_Boots",
+    "https://ftbwiki.org/Manaweave_Cowl",
+    "https://ftbwiki.org/Manaweave_Robe_Top",
+    "https://ftbwiki.org/Manaweave_Robe_Bottom",
+    "https://ftbwiki.org/Manaweave_Boots",
+    "https://ftbwiki.org/Mana_Mirror",
+    "https://ftbwiki.org/Mana_Tablet",
+    "https://ftbwiki.org/Rod_of_the_Bifrost",
+    "https://ftbwiki.org/Rod_of_the_Depths",
+    "https://ftbwiki.org/Rod_of_the_Hells",
+    "https://ftbwiki.org/Rod_of_the_Highlands",
+    "https://ftbwiki.org/Rod_of_the_Lands",
+    "https://ftbwiki.org/Rod_of_the_Molten_Core",
+    "https://ftbwiki.org/Rod_of_the_Plentiful_Mantle",
+    "https://ftbwiki.org/Rod_of_the_Seas",
+    "https://ftbwiki.org/Rod_of_the_Shaded_Mesa",
+    "https://ftbwiki.org/Rod_of_the_Shifting_Crust",
+    "https://ftbwiki.org/Rod_of_the_Skies",
+    "https://ftbwiki.org/Rod_of_the_Unstable_Reservoir",
+    "https://ftbwiki.org/Crystal_Bow",
+    "https://ftbwiki.org/Flare_Chakram",
+    "https://ftbwiki.org/Livingwood_Bow",
+    "https://ftbwiki.org/Soulscribe",
+    "https://ftbwiki.org/Starcaller",
+    "https://ftbwiki.org/Thundercaller",
+    "https://ftbwiki.org/Thorn_Chakram",
+    "https://ftbwiki.org/Vitreous_Pickaxe",
+    "https://ftbwiki.org/Assembly_Halo",
+    "https://ftbwiki.org/Bauble_Case",
+    "https://ftbwiki.org/Black_Hole_Talisman_(Botania)",
+    "https://ftbwiki.org/Cacophonium",
+    "https://ftbwiki.org/Extrapolated_Bucket",
+    "https://ftbwiki.org/Flower_Pouch",
+    "https://ftbwiki.org/Hand_of_Ender",
+    "https://ftbwiki.org/Horn_of_the_Canopy",
+    "https://ftbwiki.org/Horn_of_the_Covering",
+    "https://ftbwiki.org/Horn_of_the_Wild",
+    "https://ftbwiki.org/Life_Aggregator",
+    "https://ftbwiki.org/Livingwood_Slingshot",
+    "https://ftbwiki.org/Manufactory_Halo",
+    "https://ftbwiki.org/Stone_of_Temperance",
+    "https://ftbwiki.org/Worldshaper%27s_Sextant",
+    "https://ftbwiki.org/Biscuit_of_Totality",
+    "https://ftbwiki.org/Floral_Fertilizer",
+    "https://ftbwiki.org/Gaia_Spirit_Ingot",
+    "https://ftbwiki.org/Mana_in_a_Bottle",
+    "https://ftbwiki.org/Necrodermal_Virus",
+    "https://ftbwiki.org/Nullodermal_Virus",
+    "https://ftbwiki.org/Overgrowth_Seed",
+    "https://ftbwiki.org/Shard_of_Laputa",
+    "https://ftbwiki.org/Vine_Ball",
+    "https://ftbwiki.org/World_Seed",
+    "https://ftbwiki.org/Dice_of_Fate",
+    "https://ftbwiki.org/Eye_of_the_Flügel",
+    "https://ftbwiki.org/Key_of_the_King%27s_Law",
+    "https://ftbwiki.org/The_Fruit_of_Grisaia",
+    "https://ftbwiki.org/Ring_of_the_Aesir",
+    "https://ftbwiki.org/Ring_of_Loki",
+    "https://ftbwiki.org/Ring_of_Odin",
+    "https://ftbwiki.org/Ring_of_Thor",
+    "https://ftbwiki.org/Slime_in_a_Bottle",
+    "https://ftbwiki.org/Charm_of_the_Diva",
+    "https://ftbwiki.org/Crimson_Pendant",
+    "https://ftbwiki.org/Golden_Laurel_Crown",
+    "https://ftbwiki.org/Manaseer_Monocle",
+    "https://ftbwiki.org/Pyroclast_Pendant",
+    "https://ftbwiki.org/Flügel_Tiara",
+    "https://ftbwiki.org/Snowflake_Pendant",
+    "https://ftbwiki.org/The_Spectator",
+    "https://ftbwiki.org/Tiny_Planet",
+    "https://ftbwiki.org/Cloak_of_Sin",
+    "https://ftbwiki.org/Cloak_of_Virtue",
+    "https://ftbwiki.org/Globetrotter%27s_Sash",
+    "https://ftbwiki.org/Planestrider%27s_Sash",
+    "https://ftbwiki.org/Sojourner%27s_Sash",
+    "https://ftbwiki.org/Tectonic_Girdle",
+    "https://ftbwiki.org/Band_of_Aura",
+    "https://ftbwiki.org/Band_of_Mana",
+    "https://ftbwiki.org/Greater_Band_of_Aura",
+    "https://ftbwiki.org/Greater_Band_of_Mana",
+    "https://ftbwiki.org/Great_Fairy_Ring",
+    "https://ftbwiki.org/Greater_Ring_of_Magnetization",
+    "https://ftbwiki.org/Ring_of_Chordata",
+    "https://ftbwiki.org/Ring_of_Far_Reach",
+    "https://ftbwiki.org/Ring_of_Magnetization",
+    "https://ftbwiki.org/Ring_of_the_Mantle",
+    "https://ftbwiki.org/Ring_of_Correction",
+    "https://ftbwiki.org/Bauble_Case",
+    "https://ftbwiki.org/Tainted_Blood_Pendant",
+    "https://ftbwiki.org/Gaia_Guardian",
+    "https://ftbwiki.org/Lexica_Botania"
 ]
 def ftbwiki(url):
     # Отправляем GET-запрос к указанному URL
@@ -349,12 +465,14 @@ import chromadb
 window = tk.Tk()
 window.title("AI helper for minecraft with mods")
 window.geometry("1500x750")
-frame1 = tk.Frame(master=window, height=750,width=1500, bg="black")
+frame1 = tk.Frame(master=window, height=750,width=1500, bg="skyblue3")
 frame1.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
-label1 = tk.Label(master=frame1, text="Ask your questions here", bg="black", fg = "white",font=('Kontanter Bold',20,'bold'))
+label1 = tk.Label(master=frame1, text="Ask your questions here",bg = "skyblue3", fg = "white",font=('Kontanter Bold',20,'bold'))
+label1.pack(fill=tk.BOTH)
 label1.place(x=600,y=150)
-entry = tk.Entry(width=50, bg="grey", fg="white",font=('Kontanter Bold',12,'bold'))
+entry = tk.Entry(width=50, bg="slategray4", fg="white",font=('Kontanter Bold',12,'bold'))
 entry.insert(0, "")
+entry.pack(fill=tk.BOTH)
 entry.place(x=550,y=200)
 def rag():
     question = entry.get()
@@ -363,8 +481,8 @@ def rag():
     chromadb.api.client.SharedSystemClient.clear_system_cache()
     vectorstore=Chroma.from_documents(documents=chunks,embedding=GPT4AllEmbeddings())
     qachain = RetrievalQA.from_chain_type(ollama, retriever=vectorstore.as_retriever())
-    label2 = tk.Label(master=frame1, text=(qachain({"query":question})), bg="black", fg = "white",font=('Kontanter Bold',10,'bold'),wrap =1250)
+    label2 = tk.Label(master=frame1, text=(qachain({"query":question})), bg="skyblue3", fg = "white",font=('Kontanter Bold',10,'bold'),wrap =1250)
     label2.place(x=100,y=250)
-btn_decrease = tk.Button(master=window, text="Ask",fg="white",bg="grey",font=('Kontanter Bold',12,'bold'),command=rag)
+btn_decrease = tk.Button(master=window, text="Ask",fg="white",bg="slategray4",font=('Kontanter Bold',12,'bold'),command=rag)
 btn_decrease.place(x=960,y=195) 
-window.mainloop()
+window.mainloop() 
